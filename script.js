@@ -46,6 +46,43 @@ class App {
     console.log(window.innerWidth);
     mobileNavBtn.addEventListener("click", this.mobileNavHandler);
     cartSection.addEventListener("click", this.cartSubmitHandler.bind(this));
+    cartIcon.addEventListener("click", this.toggleCartVisibility);
+    document.addEventListener("click", this.handleCart.bind(this));
+  }
+
+  handleCart(e) {
+    console.log(e.target);
+
+    //handle delete of cart item
+    if (e.target.classList.contains("icon-delete")) {
+      cartContainer.innerHTML = "";
+      cartContainer.insertAdjacentHTML(
+        "afterbegin",
+        `<p >Your cart is empty</p>`
+      );
+      document.querySelector(".cart-count").remove();
+    }
+    //handle checkout button
+    else if (e.target.classList.contains("checkout-button")) {
+      cartContainer.innerHTML = "";
+      cartContainer.insertAdjacentHTML(
+        "afterbegin",
+        `<p style = 'color:green;font-size:20px'>succesfully checked out✅</p>`
+      );
+      document.querySelector(".cart-count").remove();
+    }
+    //make cart hidden when overlay is clicked
+    else if (e.target.classList.contains("overlay")) {
+      // this.toggleCartVisibility();
+      cartDisplay.classList.add("hidden");
+      overlay.classList.add("hidden");
+      mobileNavBtn.style.zIndex = "99999";
+      cartIcon.parentElement.style.zIndex = 1000;
+
+      document.querySelector(".lightbox")
+        ? document.querySelector(".lightbox").remove()
+        : null;
+    }
   }
 
   //toggle mobile navigation
@@ -119,6 +156,14 @@ class App {
       console.log("doesnt exist");
       cartIcon.parentElement.insertAdjacentHTML("beforeend", countEl);
     }
+  }
+
+  //toggle cart visibility
+  toggleCartVisibility() {
+    console.log("worked");
+    cartDisplay.classList.toggle("hidden");
+    overlay.classList.toggle("hidden");
+    mobileNavBtn.style.zIndex = "0";
   }
 }
 
