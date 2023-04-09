@@ -48,6 +48,23 @@ class App {
     cartSection.addEventListener("click", this.cartSubmitHandler.bind(this));
     cartIcon.addEventListener("click", this.toggleCartVisibility);
     document.addEventListener("click", this.handleCart.bind(this));
+    document.addEventListener("click", this.toggleLightBox.bind(this));
+
+    //disaple lightbox on resize to tablet/mobile
+    window.addEventListener("resize", function () {
+      if (
+        this.window.innerWidth <= 1100 &&
+        this.document.querySelector(".lightbox")
+      ) {
+        overlay.classList.add("hidden");
+        document.querySelector(".lightbox")
+          ? document.querySelector(".lightbox").remove()
+          : null;
+      }
+    });
+    // document.addEventListener("click", this.closeCart);
+
+    // cartBtn.addEventListener("click", this.addToCart);
   }
 
   handleCart(e) {
@@ -165,6 +182,161 @@ class App {
     overlay.classList.toggle("hidden");
     mobileNavBtn.style.zIndex = "0";
   }
+
+  //toggle lightbox
+  toggleLightBox(e) {
+    if (
+      e.target.classList.contains("slide") &&
+      window.innerWidth > 1100 &&
+      !body.lastElementChild.classList.contains("lightbox")
+    ) {
+      console.log(body.lastElementChild);
+      overlay.classList.toggle("hidden");
+      // overlay.style.opacity = "0.7";
+      cartIcon.parentElement.style.zIndex = 0;
+
+      let node = document.querySelector("main").firstElementChild;
+      const lightbox = node.cloneNode(true);
+      lightbox.classList.add("lightbox");
+      lightbox.style.zIndex = "99999";
+      console.log(lightbox);
+      body.appendChild(lightbox);
+
+      const lightboxEl = document.querySelector(".lightbox");
+
+      console.log(lightboxEl);
+
+      lightboxEl.querySelector(".lightbox-btn").style.display = "initial";
+
+      lightboxEl.style.gridTemplateRows = "15px 4fr 1fr";
+
+      console.log(this.index);
+      this.slider(document.querySelectorAll(".carousel-wrapper"));
+    } else if (e.target.classList.contains("lightbox-btn")) {
+      overlay.classList.add("hidden");
+      document.querySelector(".lightbox")
+        ? document.querySelector(".lightbox").remove()
+        : null;
+    }
+  }
+
+  // closeCart(){
+
+  // }
+
+  //
+  //Todo
+
+  slider(container) {
+    container.forEach((contain) => {
+      const slides = contain.querySelectorAll(".slide");
+      const thumbnails = contain.querySelectorAll(".thumbnail");
+
+      let curSlide = app.index;
+      console.log(curSlide);
+      const maxSlide = slides.length;
+
+      // Functions
+
+      const activateThumbnail = function (slide) {
+        console.log(slide + "hello");
+        // if (slide >= maxSlide) {
+        //   slide = 0;
+        // }
+
+        thumbnails.forEach((dot) => dot.classList.remove("thumbnail--active"));
+
+        console.log(contain.querySelector(`.thumbnail[data-slide="${slide}"]`));
+
+        contain
+          .querySelector(`.thumbnail[data-slide="${slide}"]`)
+          .classList.add("thumbnail--active");
+      };
+
+      const goToSlide = function (slide) {
+        // if (slide >= maxSlide - 1) {
+        //   slide = 0;
+        // }
+        slides.forEach(
+          (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+        );
+      };
+
+      // Next slide
+      const nextSlide = function () {
+        console.log(
+          "nextslide(before) curslide: " +
+            curSlide +
+            " maxslide: " +
+            (maxSlide - 1)
+        );
+        if (curSlide >= maxSlide - 1) {
+          curSlide = 0;
+          app.index = curSlide;
+          console.log("nextslide(condition) maxslide" + (maxSlide - 1));
+          console.log("nextslide(condition) curSlide" + curSlide);
+        } else {
+          curSlide++;
+          app.index = curSlide;
+          console.log("nextslide maxslide " + (maxSlide - 1));
+          console.log("nextslide curslide " + app.index);
+        }
+
+        goToSlide(curSlide);
+        activateThumbnail(curSlide);
+      };
+
+      const prevSlide = function () {
+        if (curSlide <= 0) {
+          curSlide = maxSlide - 1;
+          app.index = curSlide;
+        } else {
+          curSlide--;
+          app.index = curSlide;
+        }
+        goToSlide(curSlide);
+        activateThumbnail(curSlide);
+      };
+
+      const init = function () {
+        goToSlide(curSlide);
+        activateThumbnail(curSlide);
+      };
+
+      init();
+
+      //event listeners
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowLeft") {
+          console.log("At arrow left " + curSlide);
+          prevSlide();
+        } else if (e.key === "ArrowRight") {
+          console.log("At arrow right" + curSlide);
+          nextSlide();
+        }
+        // e.key === "ArrowRight" && nextSlide();
+      });
+
+      document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("thumbnail")) {
+          const { slide } = e.target.dataset; //using destructuring
+          app.index = slide;
+          curSlide = slide;
+          console.log("thumbnail" + slide);
+          goToSlide(slide);
+          activateThumbnail(slide);
+        } else if (e.target.closest(".next")) {
+          nextSlide();
+        } else if (e.target.closest(".prev")) {
+          prevSlide();
+        }
+      });
+    });
+  }
+
+  // slider();
+  //
+  //TODO -
 }
 
 const app = new App();
